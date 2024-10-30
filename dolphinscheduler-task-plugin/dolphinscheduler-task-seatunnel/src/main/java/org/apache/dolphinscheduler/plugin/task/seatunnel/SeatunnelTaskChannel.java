@@ -17,9 +17,7 @@
 
 package org.apache.dolphinscheduler.plugin.task.seatunnel;
 
-import static org.apache.dolphinscheduler.plugin.task.seatunnel.Constants.STARTUP_SCRIPT_FLINK;
 import static org.apache.dolphinscheduler.plugin.task.seatunnel.Constants.STARTUP_SCRIPT_SEATUNNEL;
-import static org.apache.dolphinscheduler.plugin.task.seatunnel.Constants.STARTUP_SCRIPT_SPARK;
 
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskChannel;
@@ -27,9 +25,7 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.AbstractParameters;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.ParametersNode;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.resource.ResourceParametersHelper;
-import org.apache.dolphinscheduler.plugin.task.seatunnel.flink.SeatunnelFlinkTask;
 import org.apache.dolphinscheduler.plugin.task.seatunnel.self.SeatunnelEngineTask;
-import org.apache.dolphinscheduler.plugin.task.seatunnel.spark.SeatunnelSparkTask;
 
 public class SeatunnelTaskChannel implements TaskChannel {
 
@@ -44,16 +40,11 @@ public class SeatunnelTaskChannel implements TaskChannel {
                 JSONUtils.parseObject(taskRequest.getTaskParams(), SeatunnelParameters.class);
         assert seatunnelParameters != null;
         String startupScript = seatunnelParameters.getStartupScript();
-        if (startupScript.contains(STARTUP_SCRIPT_SPARK)) {
-            return new SeatunnelSparkTask(taskRequest);
-        }
-        if (startupScript.contains(STARTUP_SCRIPT_FLINK)) {
-            return new SeatunnelFlinkTask(taskRequest);
-        }
         if (startupScript.contains(STARTUP_SCRIPT_SEATUNNEL)) {
             return new SeatunnelEngineTask(taskRequest);
+        } else {
+            throw new IllegalArgumentException("Now only support SeaTunnel engine task!");
         }
-        throw new IllegalArgumentException("Unsupported startup script name:" + seatunnelParameters.getStartupScript());
     }
 
     @Override
